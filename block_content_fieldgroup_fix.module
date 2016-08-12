@@ -1,0 +1,38 @@
+<?php
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ *
+ * Fieldgroup currently build its renderable structure in a preprocess
+ * function. It assume that all entities have a dedicated theme registry key.
+ * see field_group_theme_registry_alter() in field_group.module.
+ *
+ * Unfortunately, block_content entities don't have a relevant "block_content"
+ * theme function because it's intended to be rendered trought "block". As a
+ * result, fieldgroups in block_content entities are simply not rendered since
+ * no preprocess function could be registered in a "block_content" theme function.
+ *
+ * Here is a workaround to fire field_group_build_entity_groups function (which
+ * actually build the renderable fieldgroups) at entity view time.
+ *
+ * @param array $build
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
+ * @param $view_mode
+ */
+function block_content_fieldgroup_fix_block_content_view(
+  array &$build,
+  EntityInterface $entity,
+  EntityViewDisplayInterface $display,
+  $view_mode) {
+
+  // Build a pseudo $vars with a structure as expected in a preprocess step.
+  $vars = [];
+  $vars['elements'] = &$build;
+
+  // Call fieldgroup function that actually build the final renderable
+  // structure just like it were in a preprocess.
+  field_group_build_entity_groups($vars, 'view');
+}

@@ -1,0 +1,10 @@
+name: block_contant_fieldgroup_fix
+description: 'Quick workaround to get fieldgroup rendered in block_content entities'
+type: module
+core: 8.x
+dependencies:
+  - block
+  - block_content
+  - field
+  - field_group
+version: 8.x-1.0
